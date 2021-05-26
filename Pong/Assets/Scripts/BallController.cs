@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour {
 
+    public GameManager GM;
+
+    public string playerTag;
+    public string boundaryTag;
+    public string lBoundaryName;
+    public string rBoundaryName;
+
     public Vector2 velocity;
 
     private Rigidbody2D rb;
@@ -11,6 +18,8 @@ public class BallController : MonoBehaviour {
     private Vector3 position;
     private float width;
     private float height;
+
+    private Vector2 startingVelocity;
 
     private Vector2 screenBounds;
 
@@ -21,7 +30,9 @@ public class BallController : MonoBehaviour {
         position = transform.position;
         width = GetComponent<SpriteRenderer>().bounds.size.x;
         height = GetComponent<SpriteRenderer>().bounds.size.y;
-        
+
+        startingVelocity = velocity;
+
         screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
 
         Invoke("StartBall", 1);
@@ -32,15 +43,9 @@ public class BallController : MonoBehaviour {
         //position.x += velocity.x * Time.deltaTime;
         //position.y += velocity.y * Time.deltaTime;
 
-        position = transform.position;
+        //position = transform.position;
 
-        // Check top bounds
-        if (isInBoundsY()) {
-            transform.position = position;
-        } else {
-            velocity.y *= -1;
-            rb.velocity = velocity;
-        }
+        //transform.position = position;
     }
 
     public void StartBall() {
@@ -53,27 +58,27 @@ public class BallController : MonoBehaviour {
     }
 
     public void ResetBall() {
+        velocity = startingVelocity;
         rb.velocity = Vector2.zero;
         transform.position = Vector2.zero;
     }
 
-    public bool isInBoundsY() {
-        if (position.y + height / 2 < screenBounds.y && position.y - height / 2 > screenBounds.y * -1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void CheckOutOfBoundsX() {
-
-    }
-
     private void OnCollisionEnter2D(Collision2D collision) {
-        if (collision.collider.CompareTag("Player")) {
-            velocity.x = rb.velocity.x;
-            velocity.y = (rb.velocity.y / 2) + (collision.collider.attachedRigidbody.velocity.y / 2);
-            rb.velocity = velocity;
+        if (!GM.isGamePaused) {
+            if (collision.gameObject.tag == playerTag) {
+                velocity.x = rb.velocity.x;
+                velocity.y = (rb.velocity.y / 1) + (collision.collider.attachedRigidbody.velocity.y / 2);
+                rb.velocity = velocity;
+            } else if (collision.gameObject.tag == boundaryTag) {
+                if (collision.gameObject.name == rBoundaryName) {
+                    GM.Score(2);
+                } else if (collision.gameObject.name == lBoundaryName) {
+                    GM.Score(1);
+                }
+
+                ResetBall();
+                Invoke("StartBall", 1);
+            }
         }
     }
 }
