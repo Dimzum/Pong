@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+    GameManager GM;
+
     public float speed;
 
     public KeyCode moveUp;
@@ -21,6 +23,8 @@ public class PlayerController : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
+        GM = GameManager.instance;
+
         rb = GetComponent<Rigidbody2D>();
         height = transform.GetComponent<SpriteRenderer>().bounds.size.y;
 
@@ -29,31 +33,33 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        // Check keyboard input
-        if (Input.GetKey(moveUp)) {
-            velocity.y = speed;
-            //position.y += velocity.y * Time.deltaTime;
-        } else if (Input.GetKey(moveDown)) {
-            velocity.y = -speed;
-            //position.y += velocity.y * Time.deltaTime;
-        } else {
-            velocity.y = 0;
-        }
-
-        rb.velocity = velocity;
-
-        position = transform.position;
-
-        // Checking bounds
-        if (!isInBounds()) {
-            if (position.y + height / 2 + boundsOffset > screenBounds.y) {
-                position.y = screenBounds.y - boundsOffset - height / 2;
-            } else if (position.y - height / 2 - boundsOffset < -screenBounds.y) {
-                position.y = -screenBounds.y + boundsOffset + height / 2;
+        if (!GM.isGamePaused) {
+            // Check keyboard input
+            if (Input.GetKey(moveUp)) {
+                velocity.y = speed;
+                //position.y += velocity.y * Time.deltaTime;
+            } else if (Input.GetKey(moveDown)) {
+                velocity.y = -speed;
+                //position.y += velocity.y * Time.deltaTime;
+            } else {
+                velocity.y = 0;
             }
-        }
 
-        transform.position = position;
+            rb.velocity = velocity;
+
+            position = transform.position;
+
+            // Checking bounds
+            if (!isInBounds()) {
+                if (position.y + height / 2 + boundsOffset > screenBounds.y) {
+                    position.y = screenBounds.y - boundsOffset - height / 2;
+                } else if (position.y - height / 2 - boundsOffset < -screenBounds.y) {
+                    position.y = -screenBounds.y + boundsOffset + height / 2;
+                }
+            }
+
+            transform.position = position;
+        }
     }
 
     public bool isInBounds() {

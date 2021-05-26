@@ -12,7 +12,10 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public GameObject ball;
+
     public bool isGamePaused;
+    public GameObject gameOverUI;
 
     public Text p1ScoreText;
     public Text p2ScoreText;
@@ -65,11 +68,29 @@ public class GameManager : MonoBehaviour {
 
     public void GameOver(int winnerID) {
         isGamePaused = true;
-        
+
         if (winnerID == 1) {
             p1ScoreText.text = "Winner";
         } else if (winnerID == 2) {
             p2ScoreText.text = "Winner";
         }
+
+        ToggleGameOverUI();
+    }
+
+    public void ToggleGameOverUI() {
+        gameOverUI.SetActive(!gameOverUI.activeSelf);
+    }
+
+    public void ResettGame() {
+        ball.GetComponent<BallController>().ResetBall();
+    }
+
+    public void PlayAgain() {
+        ResettGame();
+    }
+
+    public void MainMenu() {
+
     }
 }
